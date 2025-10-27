@@ -1,20 +1,35 @@
-# PDF to Markdown Converter for Legal Documents
+# PDF to Markdown Converter
 
-A Python application that extracts text from PDF files and converts them to well-structured Markdown format, optimized for legal documents such as the Quebec Civil Code (Code Civil du Québec).
+A Python application that extracts text from digital PDF files and converts them to well-structured Markdown format, preserving the document's hierarchical structure and formatting.
+
+**Important**: This tool is designed for **digital text-based PDFs** only. It does **not** support scanned documents or image-based PDFs, as it does not perform OCR (Optical Character Recognition).
 
 ## Features
 
-- **High-Quality Text Extraction**: Uses PyMuPDF for accurate text extraction from PDF files
-- **Intelligent Structure Detection**: Automatically detects and formats hierarchical document structures:
-  - Books (LIVRE)
-  - Titles (TITRE)
-  - Chapters (CHAPITRE)
-  - Sections (SECTION)
-  - Subsections (§)
-  - Articles and legal references
+- **High-Quality Text Extraction**: Uses PyMuPDF for accurate text extraction from digital text-based PDF files
+- **Intelligent Structure Detection**: Automatically detects and formats hierarchical document structures with appropriate Markdown heading levels
 - **Clean Output**: Removes page headers/footers and other metadata
 - **Command-Line Interface**: Easy-to-use CLI for batch processing
 - **Customizable**: Support for different document titles and output paths
+- **Raw Text Export**: Option to save both raw extracted text and formatted Markdown
+
+## What PDFs Work Best
+
+This tool is designed for **digital text-based PDFs** where the text is selectable and can be copied. It works best with:
+
+✅ **Good candidates:**
+- PDFs generated from word processors (Microsoft Word, Google Docs, LaTeX, etc.)
+- Digital publications with embedded text
+- E-books in PDF format
+- Documents with hierarchical structure (headings, sections, chapters)
+
+❌ **Not supported:**
+- Scanned documents or images saved as PDF (requires OCR, not included)
+- PDFs with text embedded in images
+- Password-protected or encrypted PDFs
+- PDFs with complex layouts, tables, or multi-column formats (may produce suboptimal results)
+
+**Tip**: To check if your PDF is suitable, try selecting and copying text from it. If you can select text, this tool will work.
 
 ## Installation
 
@@ -42,10 +57,10 @@ pip install -e .
 Convert a PDF to Markdown:
 
 ```bash
-python main.py ccq-1991.pdf
+python main.py document.pdf
 ```
 
-This will create `ccq-1991.md` in the same directory.
+This will create `document.md` in the same directory.
 
 ### Sample Files
 
@@ -64,7 +79,7 @@ python main.py input.pdf -o output.md
 ### Custom Document Title
 
 ```bash
-python main.py document.pdf --title "CODE CIVIL DU QUÉBEC (CCQ-1991)"
+python main.py document.pdf --title "My Document Title"
 ```
 
 ### Save Raw Text
@@ -84,10 +99,10 @@ This creates:
 ```
 usage: main.py [-h] [-o OUTPUT_MD] [-t TITLE] [--save-raw] [-v] input_pdf
 
-Convert PDF legal documents to structured Markdown format
+Convert PDF documents to structured Markdown format
 
 positional arguments:
-  input_pdf             Path to input PDF file
+  input_pdf             Path to input PDF file (digital text-based PDF only)
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -113,11 +128,11 @@ You can also use the package directly in Python:
 from pdf2md import PDFExtractor, MarkdownFormatter
 
 # Extract text from PDF
-extractor = PDFExtractor("ccq-1991.pdf")
+extractor = PDFExtractor("document.pdf")
 raw_text = extractor.extract_text()
 
 # Format to markdown
-formatter = MarkdownFormatter(raw_text, document_title="CODE CIVIL DU QUÉBEC")
+formatter = MarkdownFormatter(raw_text, document_title="My Document")
 markdown = formatter.format_to_markdown()
 
 # Save to file
@@ -144,7 +159,6 @@ pdf2md document.pdf -o output.md
 ```
 pdf2md/
 ├── pdf2md/                    # Main package
-│   ├── __init__.py           # Package initialization
 │   ├── extractor.py          # PDF text extraction (PyMuPDF)
 │   ├── formatter.py          # Markdown formatting logic
 │   └── cli.py                # Command-line interface
@@ -153,7 +167,8 @@ pdf2md/
 │   ├── ccq-1991_pymupdf.txt  # Raw text extraction (PyMuPDF)
 │   ├── ccq-1991_pypdf2.txt   # Raw text extraction (PyPDF2)
 │   └── ccq-1991-test.md      # Final Markdown output
-├── examples/                  # Additional example outputs
+├── extract_text.py           # Standalone text extraction utility
+├── USAGE_EXAMPLES.md         # Additional usage examples
 ├── requirements.txt          # Dependencies
 ├── setup.py                  # Package configuration
 ├── README.md                 # This file
@@ -186,7 +201,9 @@ markdown = formatter.format_to_markdown()
 
 ### 3. Structure Detection
 
-The formatter detects and applies appropriate markdown headings:
+The formatter detects and applies appropriate markdown headings based on the document's hierarchical structure. It identifies patterns in the text to determine heading levels, preserving the original document organization.
+
+**Example based on legal document (from samples/):**
 
 | Document Element | Markdown Level | Example |
 |-----------------|---------------|---------|
@@ -196,7 +213,8 @@ The formatter detects and applies appropriate markdown headings:
 | SECTION | `#####` | `##### SECTION I` |
 | § (Subsection) | `######` | `###### § 1. —` |
 | Articles | Inline code | `` `Article 50` `` |
-| Legal references | Italics | `*1991, c. 64, a. 123*` |
+
+The formatter can be customized to recognize different document structures and heading patterns.
 
 ## Example Output
 
@@ -264,9 +282,10 @@ Contributions are welcome! Please feel free to submit issues or pull requests.
 ## Tips
 
 1. **Large PDFs**: The tool handles large documents efficiently with progress indicators
-2. **Encoding**: Uses UTF-8 encoding for proper French character support
-3. **Structure**: Automatically detects hierarchical legal document structure
+2. **Encoding**: Uses UTF-8 encoding for proper character support across different languages
+3. **Structure**: Automatically detects hierarchical document structure
 4. **Clean Output**: Removes page numbers and headers automatically
+5. **Digital PDFs Only**: Ensure your PDF contains extractable text, not scanned images
 
 ## Troubleshooting
 
@@ -289,17 +308,17 @@ The tool uses UTF-8 encoding by default. If you encounter encoding issues, ensur
 
 - Support for scanned PDFs (OCR integration)
 - Configurable formatting rules via JSON/YAML
-- Support for other legal document formats
 - Table extraction and formatting
 - Export to other formats (HTML, DOCX)
+- Enhanced structure detection for various document types
 
 ## Workflow Summary
 
-This application reproduces the exact workflow used to convert the Quebec Civil Code PDF to Markdown:
+This application converts digital text-based PDFs to Markdown through the following workflow:
 
 1. **Extract** raw text from PDF using PyMuPDF
-2. **Parse** document structure (hierarchical headings, sections, articles)
+2. **Parse** document structure (hierarchical headings, sections, subsections)
 3. **Format** into clean Markdown with appropriate heading levels
 4. **Output** a well-structured `.md` file
 
-The result is a readable, navigable Markdown document that preserves the original structure and content of the legal document.
+The result is a readable, navigable Markdown document that preserves the original structure and content of the PDF.
