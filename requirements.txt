@@ -1,0 +1,7 @@
+# PDF to Markdown Converter Dependencies
+
+# PDF text extraction
+PyMuPDF>=1.23.0
+
+# Alternative PDF library (optional, for reference)
+PyPDF2>=3.0.0
